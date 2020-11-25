@@ -76,7 +76,7 @@
 						map1.on('click', 'centerlayer', function (e) {
 							new mapboxgl.Popup()
 							.setLngLat(e.lngLat)
-							.setHTML("County: <b>" + e.features[0].properties.COUNAME + "</b>" + "<br>Population: <b>" + e.features[0].properties.POPULATION + "</b>" + "<br>Coordinates: <b>(" + e.features[0].properties.LATITUDE + ", " + e.features[0].properties.LONGITUDE + ")</b>")
+							.setHTML("<b>" + e.features[0].properties.COUNAME + " County</b>" + "<br>Population: <b>" + e.features[0].properties.POPULATION + "</b>" + "<br>Coordinates: <b>(" + e.features[0].properties.LATITUDE + ", " + e.features[0].properties.LONGITUDE + ")</b>")
 							.addTo(map1);
 						});
 
