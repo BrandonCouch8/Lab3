@@ -110,7 +110,7 @@
 				map2.on('click', 'poplayer', function (e) {
 					new mapboxgl.Popup()
 					.setLngLat(e.lngLat)
-					.setHTML("Population: <b>" + e.features[0].properties.PopulationTotal + "</b>" + "<br>Average Family Size: <b>" + e.features[0].properties.FamilyAverageSize + "</b>")
+					.setHTML("Population: <b>" + e.features[0].properties.PopulationTotal + "</b>" + "<br>Average Family Size: <b>" + e.features[0].properties.FamilyAverageSize + "</b>" + "<br>Median Age: <b>" + e.features[0].properties.AgeMedian + "</b>")
 					.addTo(map2);
 				});
 
