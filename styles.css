@@ -1,3 +1,7 @@
+body {
+  background-color: #D2FCF7;
+}
+
 #map1 {height: 95vh; width: 50%; margin: auto;}
 #map2 {height: 95vh; width: 50%; margin: auto;}
 
@@ -11,8 +15,4 @@ p {
   font-family: "Tahoma", sans-serif;
   font-size: 12pt;
   text-align: center;
-}
-
-body {
-  background-color: #D2FCF7;
 }
