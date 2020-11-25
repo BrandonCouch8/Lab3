@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Mapping the population of Washington</title>
+		<!-- insert Mapbox GL library links here -->
+		<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+		<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+		<link href="styles.css" rel="stylesheet" type="text/css">
+
+	</head>
+
+  <body>
+		<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+		<link
+		rel="stylesheet"
+		href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+		type="text/css"
+		/>
+		<!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+		<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <!-- create div for the map here -->
+		<div id='map1'></div>
+		<h1>Map #1: Centers of Population</h1>
+		<p>This map shows the mean centers of population for each county in the state of Washington. Click on an icon to view the name of each county and population as well as the coordinates for the mean center of population</p>
+		<p>Source: <a href="https://www.census.gov/geographies/reference-files/time-series/geo/centers-population.html" target="_blank">US Census Bureau</a><p>
+		<p>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect" target="_blank">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon" target="_blank"> www.flaticon.com</a></p>
+		<div id='map2'></div>
+		<h1>Map #2: Population of Census Tracts in Pierce County</h1>
+		<p>This is a choropleth map showing the total population of each census tract in Pierce County. Darker tracts have a higher population, while lighter tracts have a lower population. (Increments in 1000s) Click on a tract to see the total population of each tract, as well as additional info such as average family size and median age. If you live in Tacoma, feel free to enter your address to see which tract you live in!</p>
+		<p>Source: <a href="https://geohub.cityoftacoma.org/datasets/44d7c0a082b648e0a3c7909253d68236_0" target="_blank">City of Tacoma GeoHub</a><p>
+		<!-- JS code for the map goes here -->
+		<script>
+			//copy your access token here
+			mapboxgl.accessToken = 'pk.eyJ1IjoiYnJhbmRvbmNvdWNoOCIsImEiOiJja2h2NHNpcW4xaXJhMnhtanQ5NHp2ZWppIn0.SLSInhDEagBT3c0do7OQag';
+
+			var map1 = new mapboxgl.Map({
+			  container: 'map1',
+			  style:  'mapbox://styles/brandoncouch8/ckhv7raq504k119ukbx3dr0n1',
+			  center: [-120.74, 47.75],
+			  zoom: 6
+			});
+
+			var map2 = new mapboxgl.Map({
+			  container: 'map2',
+			  style:  'mapbox://styles/brandoncouch8/ckhv7raq504k119ukbx3dr0n1',
+			  center: [-122.13, 47.07],
+			  zoom: 8
+			});
+
+//Add GeoJSON layer
+//on map load, run function to load the geojson
+			map1.on('load', function(){
+				map1.loadImage(
+					'location.png',
+					function (error, image) {
+						if (error) throw error;
+						map1.addImage('location', image);
+				//add a source layer for centers of population
+						map1.addSource('center', {
+									"type": "geojson",
+									"data": "CenPopMean.json"
+						});
+						//add the centers of population to the map
+						map1.addLayer({
+							"id":"centerlayer",
+							"type":"symbol",
+							"source":"center",
+							'layout': {
+								'icon-image': 'location',
+								'icon-size': 0.25
+								}
+						});
+
+						map1.on('click', 'centerlayer', function (e) {
+							new mapboxgl.Popup()
+							.setLngLat(e.lngLat)
+							.setHTML("County: <b>" + e.features[0].properties.COUNAME + "</b>" + "<br>Population: <b>" + e.features[0].properties.POPULATION + "</b>" + "<br>Coordinates: <b>(" + e.features[0].properties.LATITUDE + ", " + e.features[0].properties.LONGITUDE + ")</b>")
+							.addTo(map1);
+						});
+
+						map1.on('mouseenter', 'centerlayer', function () {
+							map1.getCanvas().style.cursor = 'pointer';
+						});
+
+						map1.on('mouseleave', 'centerlayer', function () {
+							map1.getCanvas().style.cursor = '';
+						});
+					});
+				});
+
+			map2.on('load', function(){
+				//add a source layer for centers of population
+				map2.addSource('census', {
+					"type": "geojson",
+					"data": "PierceCensus.json"
+				});
+				//add the centers of population to the map
+				map2.addLayer({
+					"id":"poplayer",
+					"type":"fill",
+					"source":"census",
+					"paint": {
+						"fill-color": ["step",["get","PopulationTotal"],"#ffeda0",1000,"#ffeda0",2000,"#fed976",3000,"#feb24c",4000,"#fd8d3c",5000,"#fc4e2a",6000,"#e31a1c",7000,"hsl(348, 100%, 37%)",8000,"#bd0026"],
+						"fill-opacity": 0.4
+		    	}
+				});
+
+				map2.on('click', 'poplayer', function (e) {
+					new mapboxgl.Popup()
+					.setLngLat(e.lngLat)
+					.setHTML("Population: <b>" + e.features[0].properties.PopulationTotal + "</b>" + "<br>Average Family Size: <b>" + e.features[0].properties.FamilyAverageSize + "</b>")
+					.addTo(map2);
+				});
+
+				map2.on('mouseenter', 'poplayer', function () {
+					map2.getCanvas().style.cursor = 'pointer';
+				});
+
+				map2.on('mouseleave', 'poplayer', function () {
+					map2.getCanvas().style.cursor = '';
+				});
+			});
+
+			map2.addControl(
+				new MapboxGeocoder({
+					accessToken: mapboxgl.accessToken,
+					mapboxgl: mapboxgl
+				})
+			);
+
+		</script>
+	</body>
+</html>
